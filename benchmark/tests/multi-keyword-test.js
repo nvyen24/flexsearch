@@ -1,8 +1,7 @@
-//Test query tồn tại / không tồn tại
 import FlexSearch from "../../dist/flexsearch.bundle.module.min.mjs";
-import { getRAM, generateDocs } from "../utils/helper.js";
+import { generateDocs, getRAM } from "../utils/helper.js";
 
-export function existingQueryTest() {
+export function multiKeywordTest() {
 
     const index = new FlexSearch.Index({
         tokenize: "forward"
@@ -11,13 +10,14 @@ export function existingQueryTest() {
     generateDocs(index, 100000);
 
     const queries = [
-        "distributed",
-        "search",
-        "abcxyz",
-        "notfoundkeyword"
+        "distributed systems",
+        "search engine",
+        "distributed search engine",
+        "document number",
+        "distributed systems search engine"
     ];
 
-    console.log("\n=== EXISTING QUERY TEST ===");
+    console.log("\n=== MULTI KEYWORD TEST ===");
 
     for (const q of queries) {
 
@@ -28,10 +28,8 @@ export function existingQueryTest() {
         console.timeEnd(q);
 
         console.log(
-            q,
-            "=>",
-            result.length,
-            "results"
+            "Found:",
+            result.length
         );
     }
 

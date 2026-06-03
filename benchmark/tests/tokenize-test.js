@@ -1,4 +1,5 @@
-import * as FlexSearch from "../dist/flexsearch.bundle.module.min.mjs";
+//So sánh tokenize mode
+import FlexSearch from "../../dist/flexsearch.bundle.module.min.mjs";
 import { generateDocs } from "../utils/helper.js";
 
 export function tokenizeTest() {

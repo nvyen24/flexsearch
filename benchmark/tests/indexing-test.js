@@ -1,4 +1,5 @@
-import * as FlexSearch from "../dist/flexsearch.bundle.module.min.mjs";
+//Test tốc độ index + RAM
+import FlexSearch from "../../dist/flexsearch.bundle.module.min.mjs";
 import { getRAM, generateDocs } from "../utils/helper.js";
 
 export function indexingTest() {

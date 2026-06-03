@@ -1,3 +1,4 @@
+//Chứa hàm dùng chung
 export function getRAM() {
     return (
         process.memoryUsage().heapUsed / 1024 / 1024
