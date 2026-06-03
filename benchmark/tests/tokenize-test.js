@@ -3,7 +3,6 @@ import FlexSearch from "../../dist/flexsearch.bundle.module.min.mjs";
 import { generateDocs } from "../utils/helper.js";
 
 export function tokenizeTest() {
-
     const modes = [
         "strict",
         "forward",
@@ -18,13 +17,9 @@ export function tokenizeTest() {
         });
 
         generateDocs(index, 100000);
-
         console.log(`\n=== ${mode} ===`);
-
         console.time("Search");
-
         index.search("distributed");
-
         console.timeEnd("Search");
     }
 }

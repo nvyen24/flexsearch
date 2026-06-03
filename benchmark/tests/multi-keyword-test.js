@@ -1,8 +1,8 @@
+//Test tìm kiếm nhiều keyword
 import FlexSearch from "../../dist/flexsearch.bundle.module.min.mjs";
 import { generateDocs, getRAM } from "../utils/helper.js";
 
 export function multiKeywordTest() {
-
     const index = new FlexSearch.Index({
         tokenize: "forward"
     });
@@ -20,13 +20,9 @@ export function multiKeywordTest() {
     console.log("\n=== MULTI KEYWORD TEST ===");
 
     for (const q of queries) {
-
         console.time(q);
-
-        const result = index.search(q);
-
+        const result = index.search(q)
         console.timeEnd(q);
-
         console.log(
             "Found:",
             result.length

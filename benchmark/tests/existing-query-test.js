@@ -18,15 +18,10 @@ export function existingQueryTest() {
     ];
 
     console.log("\n=== EXISTING QUERY TEST ===");
-
     for (const q of queries) {
-
         console.time(q);
-
         const result = index.search(q);
-
         console.timeEnd(q);
-
         console.log(
             q,
             "=>",
