@@ -1,23 +1,22 @@
 import { performance } from "perf_hooks";
 import { WorkerPool } from "./worker-pool.js";
 
+
+import {
+    TOTAL_DOCS,
+    QUERIES
+} from "./data.js";
 console.log("=== PARALLEL WORKER SEARCH ===");
 
-const pool = new WorkerPool(4, 1000000);
+const pool = new WorkerPool(4, TOTAL_DOCS);
 
 // đợi worker build index
 await new Promise(resolve =>
     setTimeout(resolve, 3000)
 );
 
-const queries = [
-    "distributed",
-    "search",
-    "search engine",
-    "distributed systems"
-];
 
-for (const query of queries) {
+for (const query of QUERIES) {
 
     const start = performance.now();
 

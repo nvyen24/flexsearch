@@ -1,5 +1,6 @@
 import { parentPort, workerData } from "worker_threads";
 import * as FlexSearch from "../../dist/flexsearch.bundle.module.min.mjs";
+import { createDocument } from "./data.js";
 
 const index = new FlexSearch.Index({
     tokenize: "forward"
@@ -10,9 +11,9 @@ const { start, end } = workerData;
 console.log(`Worker ${start}-${end} building index...`);
 
 for (let i = start; i < end; i++) {
-    index.add(
+        index.add(
         i,
-        `document ${i} about distributed systems and search engine`
+        createDocument(i)
     );
 }
 

@@ -2,7 +2,7 @@ import { Worker } from "worker_threads";
 
 export class WorkerPool {
 
-    constructor(workerCount = 4, totalDocs = 1000000) {
+    constructor(workerCount = 4, totalDocs) {
 
         this.workerCount = workerCount;
         this.totalDocs = totalDocs;
@@ -59,30 +59,34 @@ export class WorkerPool {
     }
 }
 
-    async search(query) {
+    async search(query, topK = 100) {
 
-        const promises = this.workers.map(worker => {
+    const promises = this.workers.map(worker => {
 
-            return new Promise(resolve => {
+        return new Promise(resolve => {
 
-                worker.once(
-                    "message",
-                    data => {
-                        resolve(data.result);
-                    }
-                );
+            worker.once("message", data => {
+                resolve(data.result);
+            });
 
-                worker.postMessage({
-                    type: "search",
-                    query
-                });
+            worker.postMessage({
+                type: "search",
+                query
             });
         });
+    });
 
-        const results = await Promise.all(promises);
+    const results = await Promise.all(promises);
 
-        return results.flat();
-    }
+    // Merge
+    const merged = results.flat();
+
+    // Remove duplicate IDs
+    const unique = [...new Set(merged)];
+
+    // Return Top-K
+    return unique.slice(0, topK);
+}
 
     async close() {
 

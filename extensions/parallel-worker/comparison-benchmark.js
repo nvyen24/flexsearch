@@ -2,12 +2,17 @@ import * as FlexSearch from "../../dist/flexsearch.bundle.module.min.mjs";
 import { performance } from "perf_hooks";
 import { WorkerPool } from "./worker-pool.js";
 
-const TOTAL_DOCS = 1000000;
+import {
+    TOTAL_DOCS,
+    QUERIES,
+    createDocument
+} from "./data.js";
+
 
 console.log("=== SINGLE VS PARALLEL SEARCH ===");
 
 // ====================
-// Single Index
+//      Single Index
 // ====================
 
 const singleIndex = new FlexSearch.Index({
@@ -18,16 +23,16 @@ console.log("\nBuilding Single Index...");
 
 for (let i = 0; i < TOTAL_DOCS; i++) {
 
-    singleIndex.add(
+        singleIndex.add(
         i,
-        `document ${i} about distributed systems and search engine`
+        createDocument(i)
     );
 }
 
 console.log("Single Index Ready");
 
 // ====================
-// Parallel Pool
+//      Parallel Pool
 // ====================
 
 console.log("\nBuilding Worker Pool...");
@@ -43,15 +48,10 @@ await pool.waitUntilReady();
 console.log("Worker Pool Ready");
 
 // ====================
-// Queries
+//      Queries
 // ====================
 
-const queries = [
-    "distributed",
-    "search",
-    "search engine",
-    "distributed systems"
-];
+
 let totalSingle = 0;
 let totalParallel = 0;
 
@@ -59,7 +59,7 @@ console.log("\n==============================================");
 console.log("Query\t\tSingle(ms)\tParallel(ms)\tSpeedup");
 console.log("==============================================");
 
-for (const query of queries) {
+for (const query of QUERIES) {
 
     // Single Search
     let start = performance.now();
@@ -94,13 +94,13 @@ console.log("\n==============================================");
 
 console.log(
     "Average Single:",
-    (totalSingle / queries.length).toFixed(3),
+    (totalSingle / QUERIES.length).toFixed(3),
     "ms"
 );
 
 console.log(
     "Average Parallel:",
-    (totalParallel / queries.length).toFixed(3),
+    (totalParallel / QUERIES.length).toFixed(3),
     "ms"
 );
 
