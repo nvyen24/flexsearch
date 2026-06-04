@@ -17,6 +17,9 @@ for (let i = start; i < end; i++) {
 }
 
 console.log(`Worker ${start}-${end} ready`);
+parentPort.postMessage({
+    type: "ready"
+});
 
 parentPort.on("message", (msg) => {
 

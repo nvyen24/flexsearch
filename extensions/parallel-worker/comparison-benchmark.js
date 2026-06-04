@@ -35,9 +35,10 @@ console.log("\nBuilding Worker Pool...");
 const pool = new WorkerPool(4, TOTAL_DOCS);
 
 // đợi worker build xong
-await new Promise(resolve =>
-    setTimeout(resolve, 3000)
-);
+// await new Promise(resolve =>
+//     setTimeout(resolve, 3000)
+// );
+await pool.waitUntilReady();
 
 console.log("Worker Pool Ready");
 
@@ -51,6 +52,8 @@ const queries = [
     "search engine",
     "distributed systems"
 ];
+let totalSingle = 0;
+let totalParallel = 0;
 
 console.log("\n==============================================");
 console.log("Query\t\tSingle(ms)\tParallel(ms)\tSpeedup");
@@ -78,7 +81,8 @@ for (const query of queries) {
 
     const speedup =
         singleTime / parallelTime;
-
+    totalSingle += singleTime;
+    totalParallel += parallelTime;
     console.log(
         `${query.padEnd(20)}\t` +
         `${singleTime.toFixed(3)}\t\t` +
@@ -86,5 +90,24 @@ for (const query of queries) {
         `${speedup.toFixed(2)}x`
     );
 }
+console.log("\n==============================================");
+
+console.log(
+    "Average Single:",
+    (totalSingle / queries.length).toFixed(3),
+    "ms"
+);
+
+console.log(
+    "Average Parallel:",
+    (totalParallel / queries.length).toFixed(3),
+    "ms"
+);
+
+console.log(
+    "Average Speedup:",
+    (totalSingle / totalParallel).toFixed(2),
+    "x"
+);
 
 await pool.close();

@@ -7,6 +7,7 @@ export class WorkerPool {
         this.workerCount = workerCount;
         this.totalDocs = totalDocs;
         this.workers = [];
+        this.readyWorkers = 0;
 
         const chunk = Math.floor(totalDocs / workerCount);
 
@@ -31,8 +32,32 @@ export class WorkerPool {
             );
 
             this.workers.push(worker);
+        worker.on("message", msg => {
+
+    if (msg.type === "ready") {
+
+        this.readyWorkers++;
+
+        console.log(
+            `Ready ${this.readyWorkers}/${this.workerCount}`
+        );
+    }
+});
         }
     }
+
+    async waitUntilReady() {
+
+    while (
+        this.readyWorkers <
+        this.workerCount
+    ) {
+
+        await new Promise(resolve =>
+            setTimeout(resolve, 100)
+        );
+    }
+}
 
     async search(query) {
 
@@ -40,9 +65,12 @@ export class WorkerPool {
 
             return new Promise(resolve => {
 
-                worker.once("message", data => {
-                    resolve(data.result);
-                });
+                worker.once(
+                    "message",
+                    data => {
+                        resolve(data.result);
+                    }
+                );
 
                 worker.postMessage({
                     type: "search",
