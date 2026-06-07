@@ -5,9 +5,11 @@ const index = new FlexSearch.Index({
     tokenize: "forward"
 });
 
+let documentCount = 0;
+
 console.log(`Shard ${workerData.shardId} starting`);
 
-parentPort.on("message", msg => {
+parentPort.on("message", (msg) => {
 
     switch (msg.type) {
 
@@ -18,19 +20,39 @@ parentPort.on("message", msg => {
                 msg.content
             );
 
+            documentCount++;
+
             break;
 
         case "search":
 
-            const result =
-                index.search(msg.query);
-
             parentPort.postMessage({
-                shardId:
-                    workerData.shardId,
-                result
+                type: "search-result",
+                shardId: workerData.shardId,
+                result: index.search(msg.query)
             });
 
             break;
+
+        case "stats": {
+
+            console.log(
+                `Shard ${workerData.shardId} stats requested`
+            );
+
+            const ram =
+                process.memoryUsage().heapUsed /
+                1024 /
+                1024;
+
+            parentPort.postMessage({
+                type: "stats",
+                shardId: workerData.shardId,
+                documents: documentCount,
+                ram: ram.toFixed(2)
+            });
+
+            break;
+        }
     }
 });

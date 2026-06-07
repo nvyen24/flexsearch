@@ -4,91 +4,93 @@ export class Coordinator {
 
     constructor(shardCount = 4) {
 
-        this.shardCount =
-            shardCount;
-
+        this.shardCount = shardCount;
         this.shards = [];
 
-        for (
-            let i = 0;
-            i < shardCount;
-            i++
-        ) {
+        for (let i = 0; i < shardCount; i++) {
 
-            const shard =
-                new Worker(
-                    new URL(
-                        "./shard.js",
-                        import.meta.url
-                    ),
-                    {
-                        workerData: {
-                            shardId: i
-                        },
-                        type: "module"
-                    }
-                );
+            const shard = new Worker(
+                new URL("./shard.js", import.meta.url),
+                {
+                    workerData: {
+                        shardId: i
+                    },
+                    type: "module"
+                }
+            );
 
             this.shards.push(shard);
         }
     }
 
-    getShard(docId) {
+    getShard(id) {
 
-        return docId %
-            this.shardCount;
+        return id % this.shardCount;
     }
 
     add(id, content) {
 
-        const shardId =
-            this.getShard(id);
+        const shardId = this.getShard(id);
 
-        this.shards[shardId]
-            .postMessage({
-                type: "add",
-                id,
-                content
-            });
+        this.shards[shardId].postMessage({
+            type: "add",
+            id,
+            content
+        });
     }
 
-    async search(query) {
+    async search(query, topK = 100) {
 
-        const promises =
-            this.shards.map(
-                shard =>
-                    new Promise(resolve => {
+        const promises = this.shards.map(shard => {
 
-                        shard.once(
-                            "message",
-                            data =>
-                                resolve(
-                                    data.result
-                                )
-                        );
+            return new Promise(resolve => {
 
-                        shard.postMessage({
-                            type: "search",
-                            query
-                        });
-                    })
-            );
+                shard.once("message", data => {
+
+                    resolve(data.result);
+                });
+
+                shard.postMessage({
+                    type: "search",
+                    query
+                });
+            });
+        });
 
         const results =
-            await Promise.all(
-                promises
-            );
+            await Promise.all(promises);
 
-        return [...new Set(
-            results.flat()
-        )];
+        const merged =
+            [...new Set(results.flat())];
+
+        return merged.slice(0, topK);
+    }
+
+    async getStats() {
+
+        const promises = this.shards.map(shard => {
+
+            return new Promise(resolve => {
+
+                shard.once("message", data => {
+
+                    resolve(data);
+                });
+
+                shard.postMessage({
+                    type: "stats"
+                });
+            });
+        });
+
+        return Promise.all(promises);
     }
 
     async close() {
 
         await Promise.all(
             this.shards.map(
-                s => s.terminate()
+                shard => shard.terminate()
             )
         );
     }
